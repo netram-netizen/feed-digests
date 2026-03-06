@@ -62,7 +62,7 @@ Roles are fixed — Navigator commands, Driver executes. No switching.
 1. Prepare workstream with Designer (mockups, UX flows)
 2. Create stories from ARCHITECTURE.md phases
 3. Pair with Spec Writer on example mapping
-4. Assign stories to dev pairs (spawn Navigator first, then Driver)
+4. Assign stories to dev pairs (spawn Driver, which spawns its own Navigator)
 5. Monitor Code Review Panel feedback
 6. Scale QA pool for validation
 7. Accept/reject stories based on QA results
