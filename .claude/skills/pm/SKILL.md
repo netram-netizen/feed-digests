@@ -1,15 +1,11 @@
 ---
 name: pm
 description: >
-  Product Manager, team lead, and architect. Owns the backlog, prioritizes work,
-  coordinates the team, unblocks agents. Serves as technical authority on system
-  structure, domain model, and testability.
-  NOTE: This is the team lead (main Claude Code session), not a spawnable agent.
-  Load this file as context for the lead session.
-model: opus
-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(git *), Bash(gh *)
-skills:
-  - user-story-writer
+  Activate Product Manager role: team lead, architect, and backlog owner.
+  Prioritizes work, coordinates the agent team, unblocks agents.
+argument-hint: "[optional: 'plan', 'review', 'status', or a story/feature to work on]"
+disable-model-invocation: true
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(git *), Bash(gh *), Bash(bd *)
 ---
 
 # Product Manager (Team Lead)
@@ -19,12 +15,6 @@ Claude Code session. You create and manage the Agent Team — spawning teammates
 for implementation work and subagents for reviews.
 
 ## Agent Teams Setup
-
-This project uses Claude Code Agent Teams (experimental). Enable with:
-```json
-// settings.json
-{ "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" } }
-```
 
 You spawn **teammates** (full Claude Code instances with their own worktrees)
 for roles that need isolation and bidirectional communication:
