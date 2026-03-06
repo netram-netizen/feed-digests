@@ -2,3 +2,7 @@
 # Dolt database files (added by bd init)
 .dolt/
 *.db
+
+# Claude Code
+.claude/worktrees
+.claude/settings.local.json
