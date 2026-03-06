@@ -48,12 +48,21 @@ Each story should include:
 - If it can't be tested, redesign it
 - Playwright specs are the acceptance tests
 
+## Starting Pair Programming
+
+When assigning a story to developers:
+
+1. **Spawn the Driver** (`dev-driver`) with the story context, acceptance criteria, and relevant spec paths.
+2. The Driver automatically spawns a **Navigator** (`dev-navigator`) as a subagent inside its worktree. The Navigator commands what to write and test; the Driver executes.
+
+Roles are fixed — Navigator commands, Driver executes. No switching.
+
 ## Workflow
 
 1. Prepare workstream with Designer (mockups, UX flows)
 2. Create stories from ARCHITECTURE.md phases
 3. Pair with Spec Writer on example mapping
-4. Assign stories to dev pairs
+4. Assign stories to dev pairs (spawn Navigator first, then Driver)
 5. Monitor Code Review Panel feedback
 6. Scale QA pool for validation
 7. Accept/reject stories based on QA results
