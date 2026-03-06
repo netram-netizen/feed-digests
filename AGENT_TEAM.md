@@ -3,42 +3,58 @@
 > **Note:** This is an experiment in AI agent teams. The process is intentionally
 > grandiose relative to the project size — we're exploring what an AI team *could* do.
 
+## Teammates vs Subagents
+
+Agents are split into two tiers based on Claude Code's capabilities:
+
+| Tier | Spawned by | Capabilities | Agents |
+|------|-----------|--------------|--------|
+| **Teammate** | PM (lead session) | Own worktree, bidirectional messaging, can spawn subagents, full context window | Designer, Spec Writer, Dev Driver, QA |
+| **Subagent** | PM or a teammate | Read-only, fire-and-forget, results summarized back to caller, no inter-agent communication | Navigator (spawned by Driver), Code Review Panel (5), Spec Reviewer, Conflict Resolver |
+
+**Key constraint:** Subagents cannot spawn their own subagents. This is why the
+Dev Driver must be a **teammate** — it needs to spawn the Navigator as its own
+subagent. If the Driver were a subagent itself, this nesting would fail.
+
+The **PM is the team lead** (the main Claude Code session), not a spawnable agent.
+
 ## Team Structure
 
 ```
-    ┌─────────────────────────────────────┐
-    │  PM (team lead + architect)         │
-    │                                     │
-    │  ┌─────────┐                        │
-    │  │Designer │ ← worktree             │
-    │  └─────────┘                        │
-    │  "the duo" — prepares workstream    │
-    └─────────────────┬───────────────────┘
-                      │
-           ┌──────────▼──────────┐
-           │    Spec Writer      │  ← worktree
-           │  (pairs with PM)    │
-           └──────────┬──────────┘
-                      │  Spec Review (on PR)
-                      ▼
-           ┌──────────────────────┐
-           │ Spec Quality Reviewer│
-           └──────────┬───────────┘
-                      │
-             ┌────────▼────────┐
-             │  Dev Pair(s)    │  ← worktree
-             │  (TDD, XP)     │
-             └────────┬────────┘
-                      │  Code Review (on PR)
-           ┌──────────▼──────────┐
-           │  Code Review Panel  │
-           │  (5 reviewers)      │
-           └──────────┬──────────┘
-                      │
-             ┌────────▼────────┐
-             │   QA Pool       │  ← worktree, scales with demand
-             │  (Playwright)   │
-             └─────────────────┘
+    ┌─────────────────────────────────────────┐
+    │  PM (lead session)                      │
+    │                                         │
+    │  ┌──────────┐                           │
+    │  │ Designer │  ← teammate, worktree     │
+    │  └──────────┘                           │
+    │  "the duo" — prepares workstream        │
+    └──────────────────┬──────────────────────┘
+                       │
+            ┌──────────▼──────────┐
+            │    Spec Writer      │  ← teammate, worktree
+            │  (pairs with PM)    │
+            └──────────┬──────────┘
+                       │  Spec Review (on PR)
+                       ▼
+            ┌──────────────────────┐
+            │ Spec Quality Reviewer│  ← subagent
+            └──────────┬───────────┘
+                       │
+              ┌────────▼─────────┐
+              │  Dev Driver      │  ← teammate, worktree
+              │  └─ Navigator    │  ← subagent (spawned by Driver)
+              │  (TDD, XP)       │
+              └────────┬─────────┘
+                       │  Code Review (on PR)
+            ┌──────────▼──────────┐
+            │  Code Review Panel  │  ← 5 subagents in parallel
+            │  (5 reviewers)      │
+            └──────────┬──────────┘
+                       │
+              ┌────────▼────────┐
+              │   QA Pool       │  ← teammates, worktree, scales
+              │  (Playwright)   │
+              └─────────────────┘
 ```
 
 ---
@@ -62,8 +78,7 @@
 - Defines "done" criteria for each story
 - Makes technology decisions and resolves technical ambiguities
 
-**Agent type:** `general-purpose`
-**Mode:** `default`
+**Agent tier:** `lead session` (main Claude Code session, not spawnable)
 
 ---
 
@@ -79,8 +94,8 @@
 - Ensures consistency across pages via the design system
 - Uses Playwright screenshots to visually verify rendered output
 
-**Agent type:** `general-purpose`
-**Isolation:** `worktree`
+**Agent tier:** `teammate` — own worktree, bidirectional messaging with PM
+**Model:** `sonnet`
 
 ---
 
@@ -95,9 +110,9 @@
 - **Commits failing specs** via short-lived PR, marked as expected failures with `test.fixme()`. Each spec is tagged with a comment linking it to its story (e.g., `// story: feed-crud`). Developers flip them to active as they implement.
 - Updates specs when requirements change
 
-**Agent type:** `general-purpose`
+**Agent tier:** `teammate` — own worktree, bidirectional messaging with PM
+**Model:** `sonnet`
 **Mode:** `plan` (example mapping + spec outline need PM approval before making executable)
-**Isolation:** `worktree`
 
 ---
 
@@ -113,7 +128,8 @@
 - Flags missing edge cases or boundary scenarios
 - If Spec Quality Reviewer and Spec Writer deadlock → spawn Conflict Resolver
 
-**Agent type:** `general-purpose`
+**Agent tier:** `subagent` — read-only, fire-and-forget, returns verdict to caller
+**Model:** `sonnet`
 
 ---
 
@@ -121,9 +137,9 @@
 
 **Responsibility:** Implements code using strict TDD (Red-Green-Refactor) to make Playwright specs pass. Developers always work in pairs following XP pair programming.
 
-- **Driver:** Writes the code — types, runs tests, makes decisions at the line level
-- **Navigator:** Reviews each line as it's written, thinks ahead about strategy, catches mistakes, suggests alternatives
-- Roles swap frequently within a session
+- **Driver (teammate):** Writes the code — types, runs tests, makes decisions at the line level. Spawned by PM as a **teammate** so it can spawn its own subagent.
+- **Navigator (subagent):** Spawned by the Driver as a **subagent** inside the Driver's worktree. Thinks ahead about strategy, catches mistakes, commands the Driver what to write and test.
+- Roles are fixed — Navigator commands, Driver executes. No switching.
 - Picks up stories from the task list
 - **TDD discipline:** Write a failing test first, make it pass with minimal code, then refactor. No production code without a failing test.
 - Starts with the Playwright acceptance specs (red — flip `test.fixme()` to active), then drives implementation through unit-level TDD cycles
@@ -132,15 +148,19 @@
 - Syncs worktree with main frequently
 - Submits work via short-lived PR — **Code Review Panel reviews pre-push on the PR**
 
-**Agent type:** `general-purpose` (2 agents per pair, sharing a worktree)
-**Mode:** `default`
-**Isolation:** `worktree` (shared between the pair)
+**Driver — Agent tier:** `teammate` — own worktree, spawns Navigator subagent
+**Driver — Model:** `opus`
+**Navigator — Agent tier:** `subagent` — read-only, commands the Driver
+**Navigator — Model:** `opus`
 
 ---
 
 ### Code Review Panel
 
 A story is not done until it passes all five reviewers. Each reviewer guards its narrow niche and provides a pass/fail with actionable feedback. **Reviews happen on the PR before merge** — code does not land on main until all reviewers approve. If a reviewer and the developer pair deadlock after 2 rounds on the same issue → spawn Conflict Resolver.
+
+**Agent tier:** All 5 reviewers are `subagent` — read-only, fire-and-forget, spawned in parallel
+**Model:** `sonnet` (focused analysis, cost-efficient)
 
 #### General Reviewer
 
@@ -149,8 +169,6 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Checks the implementation matches the Playwright specs
 - Flags unnecessary complexity or over-engineering
 - Verifies no unrelated changes snuck in
-
-**Agent type:** `general-purpose`
 
 #### Test Quality Reviewer
 
@@ -161,8 +179,6 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Flags brittle tests, test duplication, or missing edge cases
 - Verifies TDD was actually followed (tests aren't after-the-fact)
 
-**Agent type:** `general-purpose`
-
 #### DDD Reviewer
 
 **Focus:** Does the code respect the domain model in ARCHITECTURE.md?
@@ -171,8 +187,6 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Checks entity/value object/service boundaries
 - Flags domain logic leaking into infrastructure or vice versa
 
-**Agent type:** `general-purpose`
-
 #### Code Smell Reviewer
 
 **Focus:** Structural quality and maintainability.
@@ -180,8 +194,6 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Scans for code smells (long methods, feature envy, primitive obsession, etc.)
 - Checks SOLID/GRASP principle adherence
 - Suggests specific refactorings when needed
-
-**Agent type:** `general-purpose`
 
 #### Pessimist
 
@@ -192,8 +204,6 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Checks for security issues (injection, path traversal, unvalidated input)
 - Questions assumptions — what if the feed is malformed? What if the LLM returns garbage?
 - Identifies missing timeouts, retries, and graceful degradation
-
-**Agent type:** `general-purpose`
 
 ---
 
@@ -210,7 +220,8 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Makes a binding decision — what it chooses wins
 - Dissolved after the decision is made
 
-**Agent type:** `general-purpose` (spawned ad-hoc, not a standing team member)
+**Agent tier:** `subagent` — spawned ad-hoc, not a standing team member
+**Model:** `sonnet`
 
 ---
 
@@ -227,9 +238,8 @@ A story is not done until it passes all five reviewers. Each reviewer guards its
 - Files defect reports to PM as new tasks with reproduction steps and screenshots
 - Re-tests after fixes are applied
 
-**Agent type:** `general-purpose`
-**Mode:** `default`
-**Isolation:** `worktree`
+**Agent tier:** `teammate` — own worktree, bidirectional messaging with PM
+**Model:** `sonnet`
 
 **Scaling policy:** PM spawns additional QA agents when multiple stories reach validation simultaneously. QA agents are shut down when the validation queue is empty.
 
@@ -256,29 +266,30 @@ Phase 2: Specification
  10. Spec Quality Reviewer reviews specs → feedback loop until approved
 
 Phase 3: Implementation (TDD, XP Pair Programming)
- 11. Dev pair syncs worktree with main (gets specs + mockups)
- 12. Dev pair picks up story, activates tagged specs (removes test.fixme())
- 13. Dev pair TDD inner loop (driver writes, navigator reviews):
-     a. Write failing unit test
-     b. Write minimal code to pass
-     c. Refactor
-     d. Swap driver/navigator roles frequently
-     e. Repeat until acceptance spec is green
- 14. Dev pair opens short-lived PR
+ 11. PM spawns Dev Driver as teammate (own worktree)
+ 12. Driver spawns Navigator as subagent inside its worktree
+ 13. Driver syncs worktree with main (gets specs + mockups)
+ 14. Driver picks up story, activates tagged specs (removes test.fixme())
+ 15. TDD inner loop (Navigator commands, Driver executes):
+     a. Navigator directs: write failing unit test
+     b. Driver writes minimal code to pass
+     c. Navigator directs: refactor
+     d. Repeat until acceptance spec is green
+ 16. Driver opens short-lived PR
 
-Phase 4: Review (pre-push, on the PR)
- 15. Code Review Panel reviews PR (5 reviewers in parallel)
- 16. Dev pair addresses feedback on PR if needed → re-review
- 17. If deadlock after 2 rounds → spawn Conflict Resolver, its decision wins
- 18. All reviewers approve → PR merges to main
+Phase 4: Review (subagents, on the PR)
+ 17. PM spawns 5 Code Review Panel subagents in parallel on the PR
+ 18. Driver addresses feedback on PR if needed → re-review
+ 19. If deadlock after 2 rounds → PM spawns Conflict Resolver subagent
+ 20. All reviewers approve → PR merges to main
 
 Phase 5: Validation
- 19. PM scales QA pool based on stories awaiting validation
- 20. Each QA agent spins up local server (free port) in own worktree
+ 21. PM spawns QA teammates based on stories awaiting validation
+ 22. Each QA teammate spins up local server (free port) in own worktree
      (per-worktree DB, not shared)
- 21. QA uses Playwright to test from user POV, takes screenshots
- 22. QA reports defects to PM with reproduction steps + screenshots
- 23. PM accepts story
+ 23. QA uses Playwright to test from user POV, takes screenshots
+ 24. QA messages PM with defect reports (reproduction steps + screenshots)
+ 25. PM accepts story
 ```
 
 ---
@@ -323,7 +334,7 @@ LLM-dependent features are tested using evaluations, not exact-match assertions:
 - **Acceptance tests:** Playwright specs in JS/TS with Page Object pattern
 - **JS/TS dependencies:** Managed via `npm` with `package.json`
 - **Unit tests:** `pytest` for Python unit tests
-- **Development method:** Strict TDD — no production code without a failing test. XP pair programming (driver + navigator).
+- **Development method:** Strict TDD — no production code without a failing test. XP pair programming (Driver teammate + Navigator subagent). Roles fixed: Navigator commands, Driver executes.
 - **Testability rule:** Full e2e test coverage required. If it can't be tested, don't build it. LLM features use evaluations.
 - **Spec ordering:** ZOMBIES (Zero, One, Many, Boundary, Interface, Exceptions, Simple)
 - **Spec design:** Example mapping before writing executable specs
@@ -335,6 +346,6 @@ LLM-dependent features are tested using evaluations, not exact-match assertions:
 - **Database:** Per-worktree SQLite, not shared between agents
 - **Backend dependencies:** Declared inline per-script, managed by `uv`
 - **Frontend dependencies:** Managed via `npm`
-- **Conflict resolution:** Spawn independent sub-agent, its decision is binding. Triggered after 2 rounds of deadlock or when reviewers disagree.
+- **Conflict resolution:** PM spawns Conflict Resolver subagent, its decision is binding. Triggered after 2 rounds of deadlock or when reviewers disagree.
 - **Local servers:** Each agent in a worktree runs its own server on a free port
 - **Stories:** Include references to relevant mockups in `design/mockups/`

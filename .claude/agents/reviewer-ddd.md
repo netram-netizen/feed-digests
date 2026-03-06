@@ -1,6 +1,10 @@
 ---
 name: reviewer-ddd
-description: "Code Review Panel: DDD Reviewer. Verifies ubiquitous language, entity/value object/service boundaries, and domain model compliance. Spawned to review developer PRs."
+description: >
+  Code Review Panel: DDD Reviewer. Verifies ubiquitous language, entity/value
+  object/service boundaries, and domain model compliance. Spawned as a SUBAGENT
+  to review developer PRs.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 skills:

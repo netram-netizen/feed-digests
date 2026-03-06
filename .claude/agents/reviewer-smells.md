@@ -1,6 +1,10 @@
 ---
 name: reviewer-smells
-description: "Code Review Panel: Code Smell Reviewer. Scans for code smells, SOLID/GRASP violations, and maintainability issues. Spawned to review developer PRs."
+description: >
+  Code Review Panel: Code Smell Reviewer. Scans for code smells, SOLID/GRASP
+  violations, and maintainability issues. Spawned as a SUBAGENT to review
+  developer PRs.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 skills:

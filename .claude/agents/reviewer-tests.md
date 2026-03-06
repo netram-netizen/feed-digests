@@ -1,6 +1,10 @@
 ---
 name: reviewer-tests
-description: "Code Review Panel: Test Quality Reviewer. Evaluates test trustworthiness, isolation, determinism, and TDD compliance. Spawned to review developer PRs."
+description: >
+  Code Review Panel: Test Quality Reviewer. Evaluates test trustworthiness,
+  isolation, determinism, and TDD compliance. Spawned as a SUBAGENT to review
+  developer PRs.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 skills:

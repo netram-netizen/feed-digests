@@ -1,6 +1,11 @@
 ---
 name: dev-driver
-description: "Developer pair: Driver role. Executes the Navigator's instructions — writes code, runs tests, reports results. Works with a Navigator in the same worktree. Spawned for implementation work."
+description: >
+  Developer pair: Driver role. Executes the Navigator's instructions — writes
+  code, runs tests, reports results. Spawns the Navigator as a subagent inside
+  its worktree. MUST be spawned as a TEAMMATE (not subagent) so it can spawn
+  the Navigator subagent.
+model: opus
 tools: Read, Edit, Write, Glob, Grep, Agent, Bash(git *), Bash(gh *), Bash(uv run *), Bash(pytest *), Bash(npx playwright *)
 isolation: worktree
 skills:

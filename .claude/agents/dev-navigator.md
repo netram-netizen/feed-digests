@@ -1,6 +1,10 @@
 ---
 name: dev-navigator
-description: "Developer pair: Navigator role. Commands the Driver what to write, what to run, and what to test. Thinks strategically, catches mistakes, directs implementation. Spawned by the Driver as a subagent inside its worktree."
+description: >
+  Developer pair: Navigator role. Commands the Driver what to write, what to
+  run, and what to test. Thinks strategically, catches mistakes, directs
+  implementation. Spawned by the Driver as a SUBAGENT inside its worktree.
+model: opus
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 ---

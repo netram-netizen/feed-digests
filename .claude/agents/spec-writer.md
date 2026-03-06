@@ -1,6 +1,10 @@
 ---
 name: spec-writer
-description: Creates executable Playwright test specs using BDD philosophy. Pairs with PM on example mapping, orders scenarios using ZOMBIES method, writes specs with Page Object pattern. Spawned during the specification phase.
+description: >
+  Creates executable Playwright test specs using BDD philosophy. Pairs with PM
+  on example mapping, orders scenarios using ZOMBIES method, writes specs with
+  Page Object pattern. Spawned as a TEAMMATE during the specification phase.
+model: sonnet
 tools: Read, Edit, Write, Glob, Grep, Bash(git *), Bash(gh *), Bash(npx playwright *), Bash(npm *)
 permissionMode: plan
 isolation: worktree

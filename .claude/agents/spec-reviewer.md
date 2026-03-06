@@ -1,6 +1,10 @@
 ---
 name: spec-reviewer
-description: Reviews Spec Writer's PR for clarity, completeness, ZOMBIES coverage, Page Object quality, and behavioural focus. Spawned to review spec PRs before merge.
+description: >
+  Reviews Spec Writer's PR for clarity, completeness, ZOMBIES coverage, Page
+  Object quality, and behavioural focus. Spawned as a SUBAGENT to review spec
+  PRs before merge.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 ---

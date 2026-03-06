@@ -1,6 +1,10 @@
 ---
 name: conflict-resolver
-description: "Breaks deadlocks when agents disagree. Receives conflicting positions, makes a binding decision. Spawned ad-hoc when reviewers deadlock after 2 rounds or when agents disagree."
+description: >
+  Breaks deadlocks when agents disagree. Receives conflicting positions, makes
+  a binding decision. Spawned ad-hoc as a SUBAGENT when reviewers deadlock
+  after 2 rounds or when agents disagree.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit, Bash
 ---

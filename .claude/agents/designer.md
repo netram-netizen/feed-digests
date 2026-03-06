@@ -1,6 +1,10 @@
 ---
 name: designer
-description: UI/UX designer. Creates HTML/CSS mockups, maintains the design system, specifies htmx behaviour, and verifies visual output with Playwright screenshots. Spawned to prepare workstreams with the PM.
+description: >
+  UI/UX designer. Creates HTML/CSS mockups, maintains the design system,
+  specifies htmx behaviour, and verifies visual output with Playwright
+  screenshots. Spawned as a TEAMMATE by the PM to prepare workstreams.
+model: sonnet
 tools: Read, Edit, Write, Glob, Grep, Bash(git *), Bash(gh *), Bash(npx @playwright/cli *), Bash(uv run *)
 isolation: worktree
 ---

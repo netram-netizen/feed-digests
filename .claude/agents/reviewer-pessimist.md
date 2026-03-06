@@ -1,6 +1,10 @@
 ---
 name: reviewer-pessimist
-description: "Code Review Panel: Pessimist. Finds failure modes, security holes, unhandled edge cases, and missing error handling. Spawned to review developer PRs."
+description: >
+  Code Review Panel: Pessimist. Finds failure modes, security holes, unhandled
+  edge cases, and missing error handling. Spawned as a SUBAGENT to review
+  developer PRs.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 ---

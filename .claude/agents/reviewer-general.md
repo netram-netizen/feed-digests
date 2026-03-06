@@ -1,6 +1,10 @@
 ---
 name: reviewer-general
-description: "Code Review Panel: General Reviewer. Checks correctness, readability, simplicity. Verifies the code does what the spec says. Spawned to review developer PRs."
+description: >
+  Code Review Panel: General Reviewer. Checks correctness, readability,
+  simplicity. Verifies the code does what the spec says. Spawned as a SUBAGENT
+  to review developer PRs.
+model: sonnet
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit
 ---

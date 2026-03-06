@@ -1,6 +1,10 @@
 ---
 name: qa
-description: "QA tester. Exercises the app from the user's perspective via Playwright to find bugs. Performs exploratory testing, takes screenshots, files defect reports. Spawned to validate completed stories."
+description: >
+  QA tester. Exercises the app from the user's perspective via Playwright to
+  find bugs. Performs exploratory testing, takes screenshots, files defect
+  reports. Spawned as a TEAMMATE to validate completed stories.
+model: sonnet
 tools: Read, Glob, Grep, Bash(git *), Bash(uv run *), Bash(npx @playwright/cli *)
 isolation: worktree
 ---
